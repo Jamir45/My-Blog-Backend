@@ -7,12 +7,16 @@ const UserData = require('../Models/userModel')
 const {
    profileImgUpload, 
    getUserProfile,
-   setUserProfile
+   setUserProfile,
+   getAllUsersProfile
 } = require('../Controllers/profileController')
 const {profileValidator} = require('../Validators/profileValidator')
 
 // get user profile data
 router.get('/profile/get', checkSignInUser, getUserProfile)
+
+// Get All Users Profile Data
+router.get('/get/all-users/profile', getAllUsersProfile)
 
 // upload single image
 router.put('/profile/image/upload', upload.single('file') , profileImgUpload)

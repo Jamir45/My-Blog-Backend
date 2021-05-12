@@ -28,6 +28,10 @@ const user = new Schema({
       type: Schema.Types.ObjectId,
       ref: 'ProfileData',
    },
+   bookmarks: [{
+      type: Schema.Types.ObjectId,
+      ref: 'ArticleData',
+   }],
    posts: [String]
 }, {timestamps: true})
 

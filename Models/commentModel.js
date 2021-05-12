@@ -5,28 +5,28 @@ const {Schema, model} = require('mongoose')
 const comments = new Schema({
    post: {
       type: Schema.Types.ObjectId,
-      ref: 'UserData',
+      ref: 'PostData',
       required: true,
    },
    user: {
       type: Schema.Types.ObjectId,
-      ref: 'PostData',
+      ref: 'UserData',
       required: true,
    },
-   body: {
+   comment: {
       type: String,
       trim: true,
    },
    replies: [
       {
-         body: { 
-            type: String,
-            trim: true,
-         },
          user: {
             type: Schema.Types.ObjectId,
-            ref: 'PostData',
+            ref: 'UserData',
             required: true,
+         },
+         replay: { 
+            type: String,
+            trim: true,
          },
          commentAt: {
             type: Date,

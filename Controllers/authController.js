@@ -130,9 +130,21 @@ exports.signIn = async (req, res, next) => {
 
 exports.getUser = async (req, res, next) => {
    try {
-      const userData = await UserData.findOne({_id: req.user._id})
+      const userData = await UserData.findOne({_id: req.user._id}).populate({
+         path: 'bookmarks'
+      })
       userData.password = undefined
       res.send(userData)
+   } catch (error) {
+      res.status(404).json({error: 'Something was wrong.!'})
+   }
+}
+
+exports.getAllUsers = async (req, res, next) => {
+   try {
+      const allUserData = await UserData.find()
+      allUserData.password = undefined
+      res.send(allUserData)
    } catch (error) {
       res.status(404).json({error: 'Something was wrong.!'})
    }

@@ -90,3 +90,13 @@ exports.getUserProfile = async (req, res) => {
       res.send({error: "Some thing was wrong, please try agin."})
    }
 }
+
+// Get All User Profile
+exports.getAllUsersProfile = async (req, res, next) => {
+   try {
+      const allUserData = await ProfileData.find()
+      res.send(allUserData)
+   } catch (error) {
+      res.status(404).json({error: 'Something was wrong.!'})
+   }
+}

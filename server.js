@@ -26,6 +26,14 @@ app.use('/user', profileRoute)
 const articleRoute = require('./Routes/articleRoute')
 app.use('/', articleRoute)
 
+// import comment route
+const commentRoute = require('./Routes/commentRoute')
+app.use('/', commentRoute)
+
+// import comment route
+const LikeDislikeRoute = require('./Routes/LikeDislikeRoute')
+app.use('/', LikeDislikeRoute)
+
 
 // Application root route
 app.get('/', checkSignInUser, (req, res) => {

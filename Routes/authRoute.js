@@ -1,6 +1,13 @@
 const router = require('express').Router()
 
-const { signUp, accountActivation, signIn, signOut, getUser } = require('../Controllers/authController')
+const { 
+   signUp, 
+   accountActivation, 
+   signIn, 
+   signOut, 
+   getUser, 
+   getAllUsers,
+} = require('../Controllers/authController')
 const {signupValidator, signinValidator} = require('../Validators/authValidator')
 const checkSignInUser = require('../Middlewares/authMiddleware')
 
@@ -15,6 +22,9 @@ router.post('/signin', signinValidator, signIn)
 
 // Get Signed In User
 router.get('/get/data', checkSignInUser, getUser)
+
+// Get All User Data
+router.get('/get/all-users', getAllUsers)
 
 // User Log Out Route
 router.post('/signout', signOut)
