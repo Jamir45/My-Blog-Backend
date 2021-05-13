@@ -10,7 +10,6 @@ exports.profileImgUpload = async (req, res) => {
    
    try {
       const uploadedImage = await cloudinary.uploader.upload(image.path)
-      console.log(uploadedImage)
       if (uploadedImage) {
          const updatedUserData = await UserData.findByIdAndUpdate(
             req.body.userId, 
@@ -24,7 +23,7 @@ exports.profileImgUpload = async (req, res) => {
          res.send({updatedUserData, success: 'Single File Successfully Uploaded'})
       }
    } catch (e) {
-      res.send({error: "Some thing was wrong"})
+      res.send({error: "Server Error, Please Try Again."})
    }
 }
 
@@ -77,7 +76,7 @@ exports.setUserProfile = async (req, res) => {
       }
    } catch (error) {
       console.log(req.user._id)
-      res.send({error: "Some thing was wrong"})
+      res.send({error: "Server error, please try agin."})
    }
 }
 

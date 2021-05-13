@@ -101,6 +101,7 @@ exports.signIn = async (req, res, next) => {
       if (!correctPassword) {
          res.status(400).send({error: 'Email or password is incorrect.'})
       }
+      correctUser.password = undefined
       // Generate Auth Token form user-registration.js
       const token = await jwt.sign(
          {
@@ -122,7 +123,7 @@ exports.signIn = async (req, res, next) => {
       // }
 
       // Successful message
-      res.send({token, success: 'Login Successful'})
+      res.send({correctUser, token, success: 'Login Successful'})
    } catch (error) {
       res.status(404).send({error: 'Something was wrong.!'})
    }

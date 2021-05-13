@@ -111,6 +111,10 @@ exports.deleteArticle = async (req, res, next) => {
 exports.getAllArticle = async (req, res, next) => {
    try {
       const allArticles = await ArticleData.find()
+      .populate({
+         path: 'author',
+         select: '_id username profilePic email createdAt'
+      })
       res.send(allArticles)
    } catch (error) {
       res.status(500).send({error: 'Server Error, Please try again'})
