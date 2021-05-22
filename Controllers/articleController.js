@@ -3,6 +3,11 @@ const readingTime = require('reading-time');
 const ArticleData = require('../Models/articleModel')
 const UserData = require('../Models/userModel')
 
+const author = {
+   path: 'author',
+   select: '_id username profilePic email createdAt'
+}
+
 // upload article image 
 exports.uploadArticleImg = async(req, res, next) => {
    const image = req.file
@@ -47,13 +52,16 @@ exports.postArticle = async(req, res, next) => {
          dislikes: [],
          comments: [],
       })
-      const createdArticle = await article.save()
-      if (createdArticle) {
+      let savedArticle = await article.save()
+      
+      if (savedArticle) {
+         const createdArticle = await ArticleData.findOne({_id: savedArticle._id}).populate(author)
          const updatedUser = await UserData.findByIdAndUpdate(
             req.user._id, 
             {
-               $push: {posts: createdArticle._id}
-            }
+               $push: {posts: savedArticle._id}
+            },
+            {new: true}
          )
          res.send({createdArticle, updatedUser, success: 'Article Successfully Posted'})
       }
@@ -81,7 +89,7 @@ exports.editArticle = async(req, res, next) => {
             }
          },
          {new: true}
-      )
+      ).populate(author)
       res.send({updatedArticle, success: 'Article Successfully Edited'})
    } catch (error) {
       res.status(500).send({error: 'Server Error, Please try again'})
@@ -98,7 +106,14 @@ exports.deleteArticle = async (req, res, next) => {
       })
       if (article) {
          const deletedArticle = await article.remove()
-         res.send({deletedArticle, success:'Article Successfully Deleted'})
+         const updatedUser = await UserData.findByIdAndUpdate(
+            req.user._id,
+            {
+               $pull: {posts: deletedArticle._id}
+            },
+            {new: true}
+         )
+         res.send({deletedArticle, updatedUser, success:'Article Successfully Deleted'})
       }else{
          res.status(400).send({error:"You are not author of this article"})
       }
@@ -110,11 +125,7 @@ exports.deleteArticle = async (req, res, next) => {
 // To get all articles
 exports.getAllArticle = async (req, res, next) => {
    try {
-      const allArticles = await ArticleData.find()
-      .populate({
-         path: 'author',
-         select: '_id username profilePic email createdAt'
-      })
+      const allArticles = await ArticleData.find().populate(author)
       res.send(allArticles)
    } catch (error) {
       res.status(500).send({error: 'Server Error, Please try again'})

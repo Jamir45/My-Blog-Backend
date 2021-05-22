@@ -1,6 +1,10 @@
 const ArticleData = require('../Models/articleModel')
 const UserData = require('../Models/userModel')
 
+const author = {
+   path: 'author',
+   select: '_id username profilePic email createdAt'
+}
 
 // Like on the Article
 exports.likeArticle = async (req, res, next) => {
@@ -12,7 +16,7 @@ exports.likeArticle = async (req, res, next) => {
             articleId,
             {$pull: {'dislikes': req.user._id}},
             {new: true}
-         )
+         ).populate(author)
       }
 
       if (article.likes.includes(req.user._id)) {
@@ -20,14 +24,14 @@ exports.likeArticle = async (req, res, next) => {
             articleId,
             {$pull: {'likes': req.user._id}},
             {new: true}
-         )
+         ).populate(author)
          res.send(likedPost)
       } else {
          const likedPost = await ArticleData.findByIdAndUpdate(
             articleId,
             {$push: {'likes': req.user._id}},
             {new: true}
-         )
+         ).populate(author)
          res.send(likedPost)
       }
    } catch (error) {
@@ -45,7 +49,7 @@ exports.dislikeArticle = async (req, res, next) => {
             articleId,
             {$pull: {'likes': req.user._id}},
             {new: true}
-         )
+         ).populate(author)
       }
 
       if (article.dislikes.includes(req.user._id)) {
@@ -53,14 +57,14 @@ exports.dislikeArticle = async (req, res, next) => {
             articleId,
             {$pull: {'dislikes': req.user._id}},
             {new: true}
-         )
+         ).populate(author)
          res.send(dislikedPost)
       } else {
          const dislikedPost = await ArticleData.findByIdAndUpdate(
             articleId,
             {$push: {'dislikes': req.user._id}},
             {new: true}
-         )
+         ).populate(author)
          res.send(dislikedPost)
       }
    } catch (error) {
@@ -71,6 +75,7 @@ exports.dislikeArticle = async (req, res, next) => {
 // Dislike on the Article
 exports.bookmarkArticle = async (req, res, next) => {
    const {articleId} = req.params
+   console.log(articleId)
    try {
       const userProfile = await UserData.findById(req.user._id)
       if (userProfile.bookmarks.includes(articleId)) {
@@ -78,19 +83,17 @@ exports.bookmarkArticle = async (req, res, next) => {
             req.user._id,
             {$pull: {'bookmarks': articleId}},
             {new: true}
-         ).populate({
-            path: 'bookmarks'
-         })
+         )
          res.send(bookmarkedPost)
+         // console.log(bookmarkedPost)
       } else {
          const bookmarkedPost = await UserData.findByIdAndUpdate(
             req.user._id,
             {$push: {'bookmarks': articleId}},
             {new: true}
-         ).populate({
-            path: 'bookmarks'
-         })
+         )
          res.send(bookmarkedPost)
+         // console.log(bookmarkedPost)
       }
    } catch (error) {
       res.send({error: 'Server Error, Please try again'})

@@ -4,6 +4,7 @@ const cookie = require('js-cookie')
 
 const checkSignInUser = async (req, res, next) => {
    const {authorization} = req.headers
+   // console.log(authorization)
    if (authorization) {
       try {
          // Verify Token

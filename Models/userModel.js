@@ -1,5 +1,4 @@
 const {Schema, model} = require('mongoose')
-// const ProfileData = require('./profileModel')
 
 const user = new Schema({
    username: {
@@ -29,6 +28,14 @@ const user = new Schema({
       ref: 'ProfileData',
    },
    bookmarks: [{
+      type: Schema.Types.ObjectId,
+      ref: 'UserData',
+   }],
+   following: [{
+      type: Schema.Types.ObjectId,
+      ref: 'UserData',
+   }],
+   follower: [{
       type: Schema.Types.ObjectId,
       ref: 'ArticleData',
    }],

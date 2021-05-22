@@ -52,7 +52,6 @@ exports.signUp = async (req, res, next) => {
 
 exports.accountActivation = (req, res) => {
    const {token} = req.body;
-   console.log(token)
  
    if (token) {
       jwt.verify(token, process.env.JWT_SECRET, async (error, decoded) => {
@@ -112,16 +111,6 @@ exports.signIn = async (req, res, next) => {
          process.env.JWT_SECRET, 
          { expiresIn: '7d' }
       );
-      // if (token) {
-      //    const decoded = jwt.decode(token);
-      //    res.cookie('myBlogAuth', token, {
-      //       httpOnly: true,
-      //       sameSite: false,
-      //       signed: true,
-      //       expires: new Date(Date.now() + decoded.exp)
-      //    });
-      // }
-
       // Successful message
       res.send({correctUser, token, success: 'Login Successful'})
    } catch (error) {
@@ -131,9 +120,7 @@ exports.signIn = async (req, res, next) => {
 
 exports.getUser = async (req, res, next) => {
    try {
-      const userData = await UserData.findOne({_id: req.user._id}).populate({
-         path: 'bookmarks'
-      })
+      const userData = await UserData.findOne({_id: req.user._id})
       userData.password = undefined
       res.send(userData)
    } catch (error) {
