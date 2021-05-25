@@ -8,7 +8,8 @@ const {
    profileImgUpload, 
    getUserProfile,
    setUserProfile,
-   getAllUsersProfile
+   getAllUsersProfile,
+   EditUserProfile
 } = require('../Controllers/profileController')
 const {profileValidator} = require('../Validators/profileValidator')
 
@@ -24,7 +25,8 @@ router.put('/profile/image/upload', upload.single('file') , profileImgUpload)
 // set user profile
 router.post('/profile/set', checkSignInUser, profileValidator, setUserProfile)
 
-
+// set user profile
+router.put('/profile/edit', checkSignInUser, profileValidator, EditUserProfile)
 
 // upload multiple images
 router.post('/images/upload', upload.array('files') , async (req, res) => {
@@ -45,5 +47,6 @@ router.post('/images/upload', upload.array('files') , async (req, res) => {
       res.send({error: "Some thing was wrong"})
    }
 })
+
 
 module.exports = router

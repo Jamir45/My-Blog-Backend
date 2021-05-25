@@ -8,6 +8,7 @@ const {
    postArticle, 
    editArticle,
    deleteArticle,
+   getHomeArticles,
    getAllArticle,
 } = require('../Controllers/articleController')
 
@@ -22,6 +23,9 @@ router.delete('/delete/article/:postId', checkSignInUser, deleteArticle)
 
 // get all article for all user
 router.get('/get-all/article', getAllArticle)
+
+// get all article for all home page
+router.get('/get/home/article/filter/:filter/page=:pageNo', getHomeArticles)
 
 
 module.exports = router

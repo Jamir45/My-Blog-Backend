@@ -2,6 +2,8 @@ const cloudinary = require('../CloudinaryConfig/CloudinaryConfig')
 const readingTime = require('reading-time');
 const ArticleData = require('../Models/articleModel')
 const UserData = require('../Models/userModel')
+const jwt = require('jsonwebtoken');
+const moment = require('moment');
 
 const author = {
    path: 'author',
@@ -123,9 +125,80 @@ exports.deleteArticle = async (req, res, next) => {
 }
 
 // To get all articles
+const getDate = (days) => {
+   let date = moment().subtract(days, 'days')
+   return date.toDate()
+} 
+const generateFilterObject = (filterData) => {
+   let filterObj = {};
+   let order = 1;
+   switch (filterData) {
+      case 'latest': {
+         filterObj = {
+            createdAt: {
+               $gt: getDate(15)
+            } 
+         };
+         order=1
+         break
+      }
+      case 'week': {
+         filterObj = {
+            createdAt: {
+               $gt: getDate(7)
+            } 
+         };
+         order=1
+         break
+      }
+      case 'month': {
+         filterObj = {
+            createdAt: {
+               $gt: getDate(30)
+            } 
+         };
+         order=1
+         break
+      }
+      case 'all': {
+         order= -1
+         break
+      }
+   }
+
+   return {
+      filterObj,
+      order
+   }
+}
+
+// Get All Article
+exports.getHomeArticles = async (req, res, next) => {
+   const {filter, pageNo} = req.params
+   const currentPage = parseInt(pageNo) || 1;
+   const articlePerPage = 3;
+   const {filterObj, order} = generateFilterObject(filter)
+   try {
+      const totalArticles = await ArticleData.find(filterObj)
+      const totalPage = Math.ceil(totalArticles.length / articlePerPage);
+      const homeArticles = await ArticleData.find(filterObj)
+      .sort(order === 1 ? '-createdAt' : 'createdAt')
+      .skip((articlePerPage * currentPage) - articlePerPage)
+      .limit(articlePerPage)
+      .populate(author)
+      
+      res.send({homeArticles, totalPage, currentPage})
+   } catch (error) {
+      res.status(500).send({error: 'Server Error, Please try again'})
+   }
+}
+
+// Get All Article
 exports.getAllArticle = async (req, res, next) => {
    try {
-      const allArticles = await ArticleData.find().populate(author)
+      const allArticles = await ArticleData.find()
+      .populate(author)
+
       res.send(allArticles)
    } catch (error) {
       res.status(500).send({error: 'Server Error, Please try again'})

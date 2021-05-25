@@ -107,6 +107,7 @@ exports.signIn = async (req, res, next) => {
             userId: correctUser._id,
             username: correctUser.username,
             email: correctUser.email,
+            profilePic: correctUser.profilePic,
          }, 
          process.env.JWT_SECRET, 
          { expiresIn: '7d' }

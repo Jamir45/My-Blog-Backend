@@ -60,7 +60,7 @@ exports.setUserProfile = async (req, res) => {
       })
       const savedProfile = await setProfile.save()
       if (savedProfile) {
-         await UserData.findByIdAndUpdate(
+         const loggedInUser = await UserData.findByIdAndUpdate(
             req.user._id,
             {
                $set: {
@@ -72,8 +72,65 @@ exports.setUserProfile = async (req, res) => {
                new:true
             }
          )
-         res.send({savedProfile, success: "Your Profile is Successfully Saved"})
+         const token = await jwt.sign(
+            {
+               userId: loggedInUser._id,
+               username: loggedInUser.username,
+               email: loggedInUser.email,
+               profilePic: loggedInUser.profilePic,
+            }, 
+            process.env.JWT_SECRET, 
+            { expiresIn: '7d' }
+         );
+
+         res.send({savedProfile, token, success: "Your Profile is Successfully Saved"})
       }
+   } catch (error) {
+      console.log(req.user._id)
+      res.send({error: "Server error, please try agin."})
+   }
+}
+
+
+// Edit User Profile Data
+exports.EditUserProfile = async (req, res) => {
+   const errors = validationResult(req);
+   if (!errors.isEmpty()) {
+      const errorMsg = errors.formatWith((data) => data.msg).mapped()
+      res.send(errorMsg)
+   }
+   const {country, name, bio, website, facebook, twitter, linkedin, degree, institute, position, organization} = req.body
+
+   try {
+      const savedProfile = await ProfileData.findOneAndUpdate(
+         {user: req.user._id},
+         {
+            $set: {
+               user: req.user._id,
+               country, 
+               bio, 
+               socialLinks: {
+                  website: website || '', 
+                  facebook: facebook || '', 
+                  twitter: twitter || '', 
+                  linkedin: linkedin || '', 
+               },
+               education: {
+                  degree, 
+                  institute, 
+               },
+               work: {
+                  position, 
+                  organization
+               },
+               posts: [],
+               bookmarks: []
+            }
+         },
+         {new: true}
+      )
+      res.send({savedProfile, success: "Your Profile is Successfully Edited"})
+
    } catch (error) {
       console.log(req.user._id)
       res.send({error: "Server error, please try agin."})
