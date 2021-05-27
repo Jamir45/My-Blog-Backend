@@ -39,7 +39,7 @@ const FollowUnFollowRoute = require('./Routes/followUnfollowRoute')
 app.use('/', FollowUnFollowRoute)
 
 // Application root route
-app.get('/', checkSignInUser, (req, res) => {
+app.get('/', (req, res) => {
    res.send({result:'My Blog Server is running'})
 })
 
