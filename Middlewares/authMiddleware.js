@@ -16,7 +16,7 @@ const checkSignInUser = async (req, res, next) => {
          req.user = verifiedUser
          next()
       } catch (error) {
-         res.send({error: 'Expired link. Signup again'})
+         res.send({error: 'You are not sign in user.'})
       }
    } else {
       res.send({error: 'You are not sign in user.'})

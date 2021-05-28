@@ -20,7 +20,7 @@ exports.profileImgUpload = async (req, res) => {
                new:true
             }
          )
-         res.send({updatedUserData, success: 'Single File Successfully Uploaded'})
+         res.send({updatedUserData, success: 'Profile Image Successfully Uploaded'})
       }
    } catch (e) {
       res.send({error: "Server Error, Please Try Again."})
