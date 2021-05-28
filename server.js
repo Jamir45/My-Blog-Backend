@@ -3,7 +3,6 @@ const app = express()
 const cors = require('cors');
 const dotenv = require('dotenv')
 const cookieParser = require('cookie-parser')
-const checkSignInUser = require('./Middlewares/authMiddleware')
 const bodyParser = require('body-parser')
 
 // Middleware
@@ -48,5 +47,5 @@ const DBConnection = require('./DBConnection/DBConnection')
 DBConnection()
 
 
-const PORT = 3005 || process.env.PORT
+let PORT = process.env.PORT || 3005
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`) )
