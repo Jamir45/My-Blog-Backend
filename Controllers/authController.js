@@ -35,7 +35,7 @@ exports.signUp = async (req, res, next) => {
          html: `
             <h1>Welcome to MY BLOG.</h1>
             <h2>Please use the following link to activate your account</h2>
-            <a target="_blank" href="http://localhost:3000/account/activate/${token}">
+            <a target="_blank" href="https://my-blog-article.web.app/account/activate/${token}">
                Click Here To Active Your Account.
             </a>
             <hr />
