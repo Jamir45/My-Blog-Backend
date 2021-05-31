@@ -1,7 +1,8 @@
 const cloudinary = require('../CloudinaryConfig/CloudinaryConfig')
 const { validationResult } = require('express-validator');
-const UserData = require('../Models/userModel')
 const ProfileData = require('../Models/profileModel')
+const UserData = require('../Models/userModel')
+const jwt = require('jsonwebtoken');
 
 
 // Upload User Profile Image
@@ -129,10 +130,19 @@ exports.EditUserProfile = async (req, res) => {
          },
          {new: true}
       )
-      res.send({savedProfile, success: "Your Profile is Successfully Edited"})
-
+      const token = await jwt.sign(
+         {
+            userId: loggedInUser._id,
+            username: loggedInUser.username,
+            email: loggedInUser.email,
+            profilePic: loggedInUser.profilePic,
+         }, 
+         process.env.JWT_SECRET, 
+         { expiresIn: '7d' }
+      );
+      
+      res.send({savedProfile, token, success: "Your Profile is Successfully Edited"})
    } catch (error) {
-      console.log(req.user._id)
       res.send({error: "Server error, please try agin."})
    }
 }
