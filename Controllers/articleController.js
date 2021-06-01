@@ -2,7 +2,6 @@ const cloudinary = require('../CloudinaryConfig/CloudinaryConfig')
 const readingTime = require('reading-time');
 const ArticleData = require('../Models/articleModel')
 const UserData = require('../Models/userModel')
-const jwt = require('jsonwebtoken');
 const moment = require('moment');
 
 const author = {
@@ -111,11 +110,28 @@ exports.deleteArticle = async (req, res, next) => {
          const updatedUser = await UserData.findByIdAndUpdate(
             req.user._id,
             {
-               $pull: {posts: deletedArticle._id}
+               $pull: {posts: deletedArticle._id, bookmarks: deletedArticle._id}
             },
             {new: true}
          )
-         res.send({deletedArticle, updatedUser, success:'Article Successfully Deleted'})
+
+         const allUser = await UserData.find()
+         allUser.map(async (userData) => {
+            if (userData.bookmarks.includes(deletedArticle._id)) {
+               const userBookmarkRemove = await UserData.findByIdAndUpdate(
+                  userData._id,
+                  {
+                     $pull: {bookmarks: deletedArticle._id}
+                  },
+                  {new: true}
+               )
+               return userBookmarkRemove
+            } else {
+               return userData
+            }
+         })
+         const updatedAllUser = await UserData.find()
+         res.send({deletedArticle, updatedUser, updatedAllUser, success:'Article Successfully Deleted'})
       }else{
          res.status(400).send({error:"You are not author of this article"})
       }
