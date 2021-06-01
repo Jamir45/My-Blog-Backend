@@ -9,7 +9,7 @@ const author = {
 // Like on the Article
 exports.likeArticle = async (req, res, next) => {
    const {articleId} = req.params
-   const article = await ArticleData.findById(articleId)
+   // const article = await ArticleData.findById(articleId)
    // if (article.dislikes.includes(req.user._id)) {
    //    await ArticleData.findByIdAndUpdate(
    //       articleId,
@@ -18,7 +18,8 @@ exports.likeArticle = async (req, res, next) => {
    //    ).populate(author)
    // }
    try {
-      if (article.likes.includes(req.user._id)) {
+      const isLiked = await article.likes.includes(req.user._id)
+      if (isLiked) {
          const likedPost = await ArticleData.findByIdAndUpdate(
             articleId,
             {$pull: {'likes': req.user._id}},
@@ -50,7 +51,8 @@ exports.dislikeArticle = async (req, res, next) => {
    //    ).populate(author)
    // }
    try {
-      if (article.dislikes.includes(req.user._id)) {
+      const isDisliked = await article.dislikes.includes(req.user._id)
+      if (isDisliked) {
          const dislikedPost = await ArticleData.findByIdAndUpdate(
             articleId,
             {$pull: {'dislikes': req.user._id}},
