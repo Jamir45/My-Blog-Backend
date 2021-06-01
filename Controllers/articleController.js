@@ -176,7 +176,7 @@ const generateFilterObject = (filterData) => {
 exports.getHomeArticles = async (req, res, next) => {
    const {filter, pageNo} = req.params
    const currentPage = parseInt(pageNo) || 1;
-   const articlePerPage = 3;
+   const articlePerPage = 10;
    const {filterObj, order} = generateFilterObject(filter)
    try {
       const totalArticles = await ArticleData.find(filterObj)
