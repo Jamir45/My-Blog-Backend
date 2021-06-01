@@ -10,15 +10,14 @@ const author = {
 exports.likeArticle = async (req, res, next) => {
    const {articleId} = req.params
    const article = await ArticleData.findById(articleId)
+   if (article.dislikes.includes(req.user._id)) {
+      await ArticleData.findByIdAndUpdate(
+         articleId,
+         {$pull: {'dislikes': req.user._id}},
+         {new: true}
+      ).populate(author)
+   }
    try {
-      if (article.dislikes.includes(req.user._id)) {
-         await ArticleData.findByIdAndUpdate(
-            articleId,
-            {$pull: {'dislikes': req.user._id}},
-            {new: true}
-         ).populate(author)
-      }
-
       if (article.likes.includes(req.user._id)) {
          const likedPost = await ArticleData.findByIdAndUpdate(
             articleId,
@@ -42,16 +41,15 @@ exports.likeArticle = async (req, res, next) => {
 // Dislike on the Article
 exports.dislikeArticle = async (req, res, next) => {
    const {articleId} = req.params
+   const article = await ArticleData.findById(articleId)
+   if (article.likes.includes(req.user._id)) {
+      await ArticleData.findByIdAndUpdate(
+         articleId,
+         {$pull: {'likes': req.user._id}},
+         {new: true}
+      ).populate(author)
+   }
    try {
-      const article = await ArticleData.findById(articleId)
-      if (article.likes.includes(req.user._id)) {
-         await ArticleData.findByIdAndUpdate(
-            articleId,
-            {$pull: {'likes': req.user._id}},
-            {new: true}
-         ).populate(author)
-      }
-
       if (article.dislikes.includes(req.user._id)) {
          const dislikedPost = await ArticleData.findByIdAndUpdate(
             articleId,
