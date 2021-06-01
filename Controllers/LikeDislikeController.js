@@ -9,8 +9,8 @@ const author = {
 // Like on the Article
 exports.likeArticle = async (req, res, next) => {
    const {articleId} = req.params
+   const article = await ArticleData.findById(articleId)
    try {
-      const article = await ArticleData.findById(articleId)
       if (article.dislikes.includes(req.user._id)) {
          await ArticleData.findByIdAndUpdate(
             articleId,
