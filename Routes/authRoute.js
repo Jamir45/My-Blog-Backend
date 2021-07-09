@@ -2,13 +2,19 @@ const router = require('express').Router()
 
 const { 
    signUp, 
-   accountActivation, 
    signIn, 
    signOut, 
    getUser, 
    getAllUsers,
+   resetPassword,
+   setNewPassword,
+   accountActivation
 } = require('../Controllers/authController')
-const {signupValidator, signinValidator} = require('../Validators/authValidator')
+const {
+   signupValidator, 
+   signinValidator,
+   resetPasswordValidator
+} = require('../Validators/authValidator')
 const checkSignInUser = require('../Middlewares/authMiddleware')
 
 // User Sign Up Route
@@ -16,6 +22,12 @@ router.post('/signup', signupValidator, signUp)
 
 // Account Activation Route
 router.post('/activation', accountActivation)
+
+// Reset password Route
+router.post('/reset/password', resetPasswordValidator, resetPassword)
+
+// Set new password Route
+router.put('/set/password', setNewPassword)
 
 // User Sign In Route
 router.post('/signin', signinValidator, signIn)

@@ -39,7 +39,7 @@ exports.signUp = async (req, res, next) => {
                Click Here To Active Your Account.
             </a>
             <hr />
-            <p>This email may containe sensetive information</p>
+            <p>This email may continue sensitive information</p>
          `
       };
       await sgMail.send(emailData);
@@ -47,6 +47,70 @@ exports.signUp = async (req, res, next) => {
    } catch (error) {
       console.error(error);
       res.send({error: `User Registration Fail.`});
+   }
+}
+
+exports.resetPassword = async (req, res, next) => {
+   const errors = validationResult(req);
+   const formate = (data) => data.msg
+   if (!errors.isEmpty()) {
+      const errorMsg = errors.formatWith(formate).mapped()
+      res.send(errorMsg)
+   }
+   try {
+      // check user
+      const {email} = req.body;
+      const correctUser = await UserData.findOne({email})
+      if (!correctUser) {
+         res.status(400).send({error: 'User not found.'})
+      }
+      const token = await jwt.sign({email},
+         process.env.JWT_SECRET,
+         {expiresIn: '5m'}
+      );
+      const emailData = {
+         from: process.env.EMAIL_FROM,
+         to: email,
+         subject: 'Password reset link',
+         html: `
+            <h1>Welcome to MY BLOG.</h1>
+            <h2>Please use the following link to reset your password</h2>
+            <a target="_blank" href="http://localhost:3000/set/new/password/${token}">
+               Click Here To Active Your Account.
+            </a>
+            <hr />
+            <p>This email may continue sensitive information</p>
+         `
+      };
+      await sgMail.send(emailData);
+      res.send({success: `Email has been sent to ${email}. Please check your email to reset password your account`})
+   } catch (error) {
+      res.send({error: `Internal server error, Please try again`});
+   }
+}
+
+exports.setNewPassword = (req, res) => {
+   const {token, password} = req.body;
+   if (token) {
+      jwt.verify(token, process.env.JWT_SECRET, async (error, decoded) => {
+         console.log(decoded)
+         if (error) {
+            res.send({
+            error: 'Link expired. Please signup again'
+         });
+         } else {
+            const {email} = jwt.decode(token);
+            const hashedPassword = await bcrypt.hash(password, 10)
+            await UserData.findOneAndUpdate(
+               {email: email}, 
+               {$set:{password: hashedPassword}}, 
+               {new: true}
+            )
+            res.send({success: 'Password successfully updated'});
+         }
+      });
+   } else {
+      res.status(401).send({error: 'Error happening please try again'});
    }
 }
 
@@ -93,12 +157,12 @@ exports.signIn = async (req, res, next) => {
       // check user
       const correctUser = await UserData.findOne({email})
       if (!correctUser) {
-         res.status(400).send({error: 'Email or password is incorrect.'})
+         res.send({error: 'Email or password is incorrect.'})
       }
       // check password
       const correctPassword = await bcrypt.compare(password, correctUser.password)
       if (!correctPassword) {
-         res.status(400).send({error: 'Email or password is incorrect.'})
+         res.send({error: 'Email or password is incorrect.'})
       }
       correctUser.password = undefined
       // Generate Auth Token form user-registration.js

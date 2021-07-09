@@ -52,3 +52,11 @@ exports.signinValidator = [
          .notEmpty().withMessage('Please provide your password.')
          ,
 ]
+
+// sign in validator
+exports.resetPasswordValidator = [
+   check('email')
+         .notEmpty().withMessage('Please provide an email.')
+         .isEmail().withMessage('Please provide a valid email.')
+         ,
+]

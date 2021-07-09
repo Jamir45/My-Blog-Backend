@@ -3,6 +3,8 @@ const readingTime = require('reading-time');
 const ArticleData = require('../Models/articleModel')
 const UserData = require('../Models/userModel')
 const moment = require('moment');
+const cheerio = require('cheerio');
+const { PictureRemover } = require('./AppHandler');
 
 const author = {
    path: 'author',
@@ -78,6 +80,27 @@ exports.editArticle = async(req, res, next) => {
    const readTime = readingTime(body).text
 
    try {
+      const prevArticle = await ArticleData.findOne({author: req.user._id})
+      console.log(prevArticle)
+      if (prevArticle.articleThumbnail) {
+         const publicId = prevArticle.articleThumbnail.split('/')[7]
+         const pbID = publicId.slice(0, publicId.length - 4)
+         const result = await cloudinary.uploader.destroy(pbID);
+         console.log(result)
+      }
+      const $ = cheerio.load(prevArticle.body);
+      const linkObjects = $('img');
+      const links = [];
+      linkObjects.each((index, element) => {
+         const src = $(element).attr();
+         const publicId = src.src.split('/')[7]
+         const pbID = publicId.slice(0, publicId.length - 4)
+         links.push(pbID);
+      });
+      if (links.length > 0) {
+         const result = await cloudinary.api.delete_resources(links);
+         console.log(result)
+      }
       const updatedArticle = await ArticleData.findOneAndUpdate(
          {author: req.user._id}, 
          {
@@ -92,6 +115,7 @@ exports.editArticle = async(req, res, next) => {
          {new: true}
       ).populate(author)
       res.send({updatedArticle, success: 'Article Successfully Edited'})
+      console.log({jamirhossain})
    } catch (error) {
       res.status(500).send({error: 'Server Error, Please try again'})
    }
@@ -106,6 +130,24 @@ exports.deleteArticle = async (req, res, next) => {
          author:req.user._id
       })
       if (article) {
+         const {articleThumbnail, body} = article
+         if (articleThumbnail) {
+            const publicId = articleThumbnail.split('/')[7]
+            const pbID = publicId.slice(0, publicId.length - 4)
+            await cloudinary.uploader.destroy(pbID);
+         }
+         const $ = cheerio.load(body);
+         const linkObjects = $('img');
+         const links = [];
+         linkObjects.each((index, element) => {
+            const src = $(element).attr();
+            const publicId = src.src.split('/')[7]
+            const pbID = publicId.slice(0, publicId.length - 4)
+            links.push(pbID);
+         });
+         if (links.length > 0) {
+            await cloudinary.api.delete_resources(links);
+         }
          const deletedArticle = await article.remove()
          const updatedUser = await UserData.findByIdAndUpdate(
             req.user._id,
